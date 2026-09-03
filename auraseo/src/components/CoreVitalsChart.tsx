@@ -7,6 +7,30 @@ interface CoreVitalsChartProps {
   isLoading?: boolean;
 }
 
+interface TooltipPayloadItem {
+  payload: {
+    name: string;
+    value: number | string;
+    color: string;
+  };
+}
+
+function CoreVitalsTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) {
+  if (active && payload && payload.length) {
+    const metric = payload[0].payload;
+    return (
+      <div className="glass rounded-xl p-3 border border-accent/30 shadow-xl">
+        <p className="text-text-primary font-semibold">{metric.name}</p>
+        <p className="text-text-secondary text-sm">
+          Value: <span className="font-mono font-bold" style={{ color: metric.color }}>{metric.value}</span>
+          {metric.name !== 'CLS' ? 'ms' : ''}
+        </p>
+      </div>
+    );
+  }
+  return null;
+}
+
 function CoreVitalsChartComponent({ vitals, isLoading }: CoreVitalsChartProps) {
   if (isLoading) {
     return (
@@ -21,22 +45,6 @@ function CoreVitalsChartComponent({ vitals, isLoading }: CoreVitalsChartProps) {
     { name: 'FID', value: vitals.fid, color: '#8D86C9' },
     { name: 'CLS', value: vitals.cls, color: '#D7D3DA' },
   ];
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const metric = payload[0].payload;
-      return (
-        <div className="glass rounded-xl p-3 border border-accent/30 shadow-xl">
-          <p className="text-text-primary font-semibold">{metric.name}</p>
-          <p className="text-text-secondary text-sm">
-            Value: <span className="font-mono font-bold" style={{ color: metric.color }}>{metric.value}</span>
-            {metric.name !== 'CLS' ? 'ms' : ''}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div 
@@ -78,14 +86,14 @@ function CoreVitalsChartComponent({ vitals, isLoading }: CoreVitalsChartProps) {
               axisLine={{ stroke: 'rgba(103, 78, 188, 0.2)' }}
               tickLine={false}
             />
-            <Tooltip content={<CustomTooltip />} cursor={false} />
+            <Tooltip content={<CoreVitalsTooltip />} cursor={false} />
             <Bar 
               dataKey="value" 
               radius={[6, 6, 0, 0]}
               animationDuration={1000}
               animationBegin={200}
             >
-              {data.map((entry, index) => (
+              {data.map((_metric, index) => (
                 <Cell 
                   key={`cell-${index}`} 
                   fill={`url(#colorBar${index})`}

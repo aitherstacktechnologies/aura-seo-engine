@@ -25,14 +25,14 @@ export async function generatePDF(audit: AuditResult): Promise<void> {
   pdf.setTextColor(255, 255, 255);
   pdf.text('Target URL', margin, y);
   pdf.setFontSize(11);
-  pdf.setTextColor(0, 245, 212);
-  pdf.text(audit.url, margin, y + 6);
+  pdf.setTextColor(103, 78, 188);
+  pdf.text(audit.url.length > 60 ? audit.url.substring(0, 57) + '...' : audit.url, margin, y + 6);
 
   pdf.setFontSize(14);
   pdf.setTextColor(255, 255, 255);
   pdf.text('Device', pageWidth - margin - 40, y);
   pdf.setFontSize(11);
-  pdf.setTextColor(155, 93, 229);
+  pdf.setTextColor(141, 134, 201);
   pdf.text(audit.device.charAt(0).toUpperCase() + audit.device.slice(1), pageWidth - margin - 40, y + 6);
 
   y += 25;
@@ -77,9 +77,9 @@ export async function generatePDF(audit: AuditResult): Promise<void> {
   pdf.roundedRect(margin, y, pageWidth - margin * 2, 35, 3, 3, 'F');
 
   const vitals = [
-    { label: 'LCP', value: audit.coreVitals.lcp, unit: 'ms' },
-    { label: 'FID', value: audit.coreVitals.fid, unit: 'ms' },
-    { label: 'CLS', value: audit.coreVitals.cls, unit: '' },
+    { label: 'LCP', value: String(audit.coreVitals.lcp), unit: 'ms' },
+    { label: 'FID', value: String(audit.coreVitals.fid), unit: 'ms' },
+    { label: 'CLS', value: audit.coreVitals.cls.toFixed(2), unit: '' },
   ];
 
   const vitalWidth = (pageWidth - margin * 2) / 3;
@@ -88,7 +88,7 @@ export async function generatePDF(audit: AuditResult): Promise<void> {
     
     pdf.setFontSize(18);
     pdf.setTextColor(255, 255, 255);
-    pdf.text(String(vital.value), x, y + 15);
+    pdf.text(vital.value, x, y + 15);
     
     pdf.setFontSize(9);
     pdf.setTextColor(160, 160, 176);

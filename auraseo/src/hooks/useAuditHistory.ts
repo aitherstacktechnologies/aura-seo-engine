@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { AuditHistoryItem } from '../types';
 import { getAuditHistory, deleteAudit, clearHistory, getAuditById } from '../lib/supabase';
 import type { AuditResult } from '../types';
@@ -15,29 +15,41 @@ interface UseAuditHistoryReturn {
 export function useAuditHistory(): UseAuditHistoryReturn {
   const [history, setHistory] = useState<AuditHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const loadHistory = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await getAuditHistory();
-      setHistory(data);
+      if (isMounted.current) {
+        setHistory(data);
+      }
     } catch (err) {
       console.error('Failed to load history:', err);
     } finally {
-      setIsLoading(false);
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   const removeAudit = useCallback(async (id: string) => {
     const success = await deleteAudit(id);
-    if (success) {
+    if (success && isMounted.current) {
       setHistory((prev) => prev.filter((item) => item.id !== id));
     }
   }, []);
 
   const clearAllHistory = useCallback(async () => {
     const success = await clearHistory();
-    if (success) {
+    if (success && isMounted.current) {
       setHistory([]);
     }
   }, []);
@@ -47,7 +59,7 @@ export function useAuditHistory(): UseAuditHistoryReturn {
   }, []);
 
   useEffect(() => {
-    loadHistory();
+    void loadHistory();
   }, [loadHistory]);
 
   return {

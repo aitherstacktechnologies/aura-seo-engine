@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { AuditResult, DeviceType } from '../types';
 import { runPageSpeedAudit } from '../lib/pagespeed';
 import { saveAudit } from '../lib/supabase';
@@ -15,12 +15,21 @@ export function usePageSpeed(): UsePageSpeedReturn {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AuditResult | null>(null);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   const runAudit = useCallback(async (url: string, device: DeviceType): Promise<AuditResult | null> => {
     const apiKey = import.meta.env.VITE_PAGESPEED_API_KEY;
 
     if (!apiKey) {
-      setError('PageSpeed API key not configured. Add VITE_PAGESPEED_API_KEY to your environment.');
+      const msg = 'PageSpeed API key not configured. Add VITE_PAGESPEED_API_KEY to your environment.';
+      setError(msg);
       return null;
     }
 
@@ -29,22 +38,29 @@ export function usePageSpeed(): UsePageSpeedReturn {
 
     try {
       const auditResult = await runPageSpeedAudit(url, device, apiKey);
-      setResult(auditResult);
+      if (isMounted.current) {
+        setResult(auditResult);
+      }
       
-      saveAudit(auditResult);
+      saveAudit(auditResult).catch((err) => {
+        console.error('Failed to save audit:', err);
+      });
       
       return auditResult;
     } catch (err) {
       const message = err instanceof Error ? err.message : 'An error occurred';
-      setError(message);
+      if (isMounted.current) {
+        setError(message);
+      }
       return null;
     } finally {
-      setIsLoading(false);
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   const reset = useCallback(() => {
-    setIsLoading(false);
     setError(null);
     setResult(null);
   }, []);

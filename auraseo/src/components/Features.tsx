@@ -1,6 +1,7 @@
 import { useRef, memo } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { Zap, BarChart2, Shield, Search, Globe, FileText, Clock, Accessibility } from 'lucide-react';
+import { useInView } from 'framer-motion';
+import { Zap, BarChart2, Shield, Search, Globe, Clock, Accessibility } from 'lucide-react';
+
 
 const advantages = [
   {

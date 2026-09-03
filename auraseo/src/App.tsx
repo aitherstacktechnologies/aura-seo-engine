@@ -55,12 +55,12 @@ function App() {
 
   const handleRunAudit = useCallback(async (url: string, device: DeviceType) => {
     reset();
-    const audit = await runAudit(url, device);
-    if (audit) {
+    const result = await runAudit(url, device);
+    if (result) {
       addToast('success', `Audit complete for ${url}`);
       loadHistory();
-    } else if (error) {
-      addToast('error', error);
+    } else {
+      addToast('error', error || 'Audit failed. Please try again.');
     }
   }, [runAudit, reset, addToast, loadHistory, error]);
 

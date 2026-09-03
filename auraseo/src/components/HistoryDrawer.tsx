@@ -64,7 +64,9 @@ export function HistoryDrawer({
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+            type="button"
+            aria-label="Close history"
           >
             <X className="w-5 h-5 text-text-secondary" />
           </button>
@@ -74,7 +76,8 @@ export function HistoryDrawer({
           {history.length > 0 && (
             <button
               onClick={onClearAll}
-              className="w-full btn-secondary py-2.5 rounded-xl text-sm text-error border-error/30 hover:border-error/50"
+              className="w-full btn-secondary py-2.5 rounded-xl text-sm text-error border-error/30 hover:border-error/50 cursor-pointer"
+              type="button"
             >
               Clear All
             </button>
@@ -99,8 +102,16 @@ export function HistoryDrawer({
               {history.map((item) => (
                 <div
                   key={item.id}
-                  className="glass-card rounded-xl p-4 cursor-pointer group card-3d"
+                  className="glass-card rounded-xl p-4 cursor-pointer group transition-transform duration-200 hover:-translate-y-0.5"
                   onClick={() => handleSelect(item.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleSelect(item.id);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-3">
@@ -143,7 +154,9 @@ export function HistoryDrawer({
                         e.stopPropagation();
                         onDeleteAudit(item.id);
                       }}
-                      className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-error/20 transition-all"
+                      className="p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-error/20 transition-all cursor-pointer"
+                      type="button"
+                      aria-label="Delete audit"
                     >
                       <Trash2 className="w-4 h-4 text-error" />
                     </button>

@@ -1,13 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { AuditResult, AuditHistoryItem } from '../types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
+export const supabase: SupabaseClient | null = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;
 
 export async function saveAudit(audit: AuditResult): Promise<string | null> {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isSupabaseConfigured || !supabase) {
     console.warn('Supabase not configured. Audit will not be saved.');
     return null;
   }
@@ -33,7 +37,7 @@ export async function saveAudit(audit: AuditResult): Promise<string | null> {
 }
 
 export async function getAuditHistory(): Promise<AuditHistoryItem[]> {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isSupabaseConfigured || !supabase) {
     return [];
   }
 
@@ -48,17 +52,17 @@ export async function getAuditHistory(): Promise<AuditHistoryItem[]> {
     return [];
   }
 
-  return data.map((item) => ({
+  return (data || []).map((item) => ({
     id: item.id,
     url: item.url,
     device: item.device,
-    score: item.scores.performance,
+    score: item.scores?.performance ?? 0,
     createdAt: item.created_at,
   }));
 }
 
 export async function getAuditById(id: string): Promise<AuditResult | null> {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isSupabaseConfigured || !supabase) {
     return null;
   }
 
@@ -68,7 +72,7 @@ export async function getAuditById(id: string): Promise<AuditResult | null> {
     .eq('id', id)
     .single();
 
-  if (error) {
+  if (error || !data) {
     console.error('Error fetching audit:', error);
     return null;
   }
@@ -85,7 +89,7 @@ export async function getAuditById(id: string): Promise<AuditResult | null> {
 }
 
 export async function deleteAudit(id: string): Promise<boolean> {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isSupabaseConfigured || !supabase) {
     return false;
   }
 
@@ -103,7 +107,7 @@ export async function deleteAudit(id: string): Promise<boolean> {
 }
 
 export async function clearHistory(): Promise<boolean> {
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!isSupabaseConfigured || !supabase) {
     return false;
   }
 
@@ -118,8 +122,4 @@ export async function clearHistory(): Promise<boolean> {
   }
 
   return true;
-}
-
-export function isSupabaseConfigured(): boolean {
-  return Boolean(supabaseUrl && supabaseAnonKey);
 }

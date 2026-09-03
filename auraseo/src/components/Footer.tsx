@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { Mail, ArrowUpRight } from 'lucide-react';
+import logoImage from '../assets/logo.png';
 
 const quickLinks = [
   { label: 'Home', href: '/' },
@@ -43,7 +44,7 @@ function FooterComponent() {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <img 
-                src="/src/assets/logo.png" 
+                src={logoImage} 
                 alt="AuraSEO Logo" 
                 className="w-12 h-12 rounded-xl object-contain"
                 loading="lazy"

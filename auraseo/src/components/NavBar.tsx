@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, History, FileText, ArrowUpRight, Activity } from 'lucide-react';
 import { MagneticButton } from '../lib/motion';
+import logoImage from '../assets/logo.png';
 
 interface NavBarProps {
   onHistoryClick: () => void;
@@ -93,7 +94,7 @@ function NavBarComponent({ onHistoryClick, onExportClick, hasAudit }: NavBarProp
               transition={{ duration: 0.5, ease: 'easeInOut' }}
             >
               <img 
-                src="/src/assets/logo.png" 
+                src={logoImage} 
                 alt="AuraSEO Logo" 
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-contain"
                 loading="eager"

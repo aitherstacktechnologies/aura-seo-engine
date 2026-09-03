@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { CheckCircle, AlertTriangle, XCircle, X } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, X, Info } from 'lucide-react';
 import type { Toast as ToastType } from '../types';
 
 interface ToastProps {
@@ -45,7 +45,7 @@ function Toast({ toast, onDismiss }: { toast: ToastType; onDismiss: (id: string)
       bg: 'bg-error/10',
     },
     info: {
-      icon: <AlertTriangle className="w-5 h-5" />,
+      icon: <Info className="w-5 h-5" />,
       border: 'border-accent/30',
       text: 'text-accent',
       bg: 'bg-accent/10',
@@ -56,13 +56,16 @@ function Toast({ toast, onDismiss }: { toast: ToastType; onDismiss: (id: string)
 
   return (
     <div
-      className={`${bg} backdrop-blur-xl rounded-xl p-4 flex items-center gap-3 min-w-[300px] border ${border} animate-slide-right shadow-lg`}
+      className={`${bg} backdrop-blur-xl rounded-xl p-4 flex items-center gap-3 min-w-[300px] max-w-md border ${border} animate-slide-right shadow-lg`}
+      role="alert"
     >
       <span className={text}>{icon}</span>
       <p className="text-text-primary flex-1 text-sm font-medium">{toast.message}</p>
       <button
         onClick={() => onDismiss(toast.id)}
-        className="p-1 rounded-lg hover:bg-white/10 transition-colors"
+        className="p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+        type="button"
+        aria-label="Dismiss"
       >
         <X className="w-4 h-4 text-text-muted" />
       </button>
